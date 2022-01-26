@@ -1,4 +1,4 @@
-FROM hadoop-base:3.1.1
+FROM hadoop-base:3.3.1
 
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -f http://localhost:50070/ || exit 1
 
@@ -10,6 +10,6 @@ VOLUME /opt/hadoop/dfs/name
 ADD start.sh /start.sh
 RUN chmod a+x /start.sh
 
-EXPOSE 50070 9000
+EXPOSE 50070 9000 8088 9866
 
-CMD ["/start.sh", "/opt/hadoop/dfs/name"]
+#CMD ["/start.sh", "/opt/hadoop/dfs/name"]

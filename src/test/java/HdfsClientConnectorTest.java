@@ -7,18 +7,16 @@ import org.apache.hadoop.fs.Path;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class HdfsClientConnectorTest {
 
-    private String url = "hdfs://10.253.1.104:50070";
+    private final String url = "hdfs://10.253.1.104:9000"; // hadoop이 설치된 ip 주소 (default: localhost)
     Path outputPath = new Path("/tmp/test/app/");
 
     @Test
@@ -36,23 +34,40 @@ public class HdfsClientConnectorTest {
 
         FileSystem hdfs = FileSystem.get(URI.create(url), configure);
 
-        assertThat(hdfs.exists(outputPath)).isTrue();
+        assertThat(hdfs.exists(outputPath)).isFalse();
     }
 
     @Test
-    void writeAndReadTest() throws IOException {
-        System.setProperty("HADOOP_USER_NAME", "root");
-
+    void writeAndReadTest() {
         Configuration configure = new Configuration();
-        configure.set("fs.defaultFS", "hdfs://namenode:9000/");
-        configure.set("dfs.blocksize", "134217728");
 
-        FileSystem hdfs = FileSystem.get(URI.create(url), configure);
+        final String path = "/test_file/hello.txt";
+        Path writePathInHDFS = new Path(path);
+        FileSystem hdfs = null;
+        try {
+            hdfs = FileSystem.get(URI.create(url), configure);
 
-        Path writePath = new Path("/user/input/hello.txt");
-        FSDataInputStream inputStream = hdfs.open(writePath);
-        assertThat(inputStream).isNotNull();
-        String inputString = inputStream.readUTF();
-        inputStream.close();
+            //write
+            final String testString = "test hello\n";
+//            FSDataOutputStream outStream = hdfs.create(writePath);
+//            outStream.writeUTF(testString);
+//            outStream.close();
+
+            //read
+            FSDataInputStream inputStream = hdfs.open(writePathInHDFS);
+            String readString = inputStream.readUTF();
+            inputStream.close();
+            assertThat(readString).isEqualTo(testString);
+            System.out.println("readString = " + readString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            hdfs.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

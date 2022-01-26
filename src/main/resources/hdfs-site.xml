@@ -12,8 +12,17 @@
         <final>true</final>
     </property>
     <property>
+        <name>dfs.permissions.enabled</name>
+        <value>false</value>
+        <final>true</final>
+    </property>
+    <property>
         <name>dfs.namenode.name.dir</name>
-        <value>file:///opt/hadoop/dfs/name</value>
+        <value>file:///hadoop/dfs/name</value>
+    </property>
+    <property>
+        <name>dfs.datanode.data.dir</name>
+        <value>file:///hadoop/dfs/data</value>
     </property>
     <property>
         <name>dfs.blocksize</name>
@@ -21,6 +30,10 @@
     </property>
     <property>
         <name>dfs.client.use.datanode.hostname</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>dfs.datanode.use.datanode.hostname</name>
         <value>true</value>
     </property>
     <property>
