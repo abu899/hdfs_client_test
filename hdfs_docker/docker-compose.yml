@@ -12,9 +12,11 @@ services:
       - 9866:9866
     volumes:
       - namenode:/opt/hadoop/dfs/name
-      - /tmp:/tmp
+      - /tmp/hadoop_tmp:/tmp
     env_file:
       - ./hadoop.env
+    links:
+      - datanode
 
   datanode:
     image:  hadoop-datanode:3.3.1
@@ -24,9 +26,11 @@ services:
     volumes:
       - datanode:/opt/hadoop/dfs/data
     environment:
-      SERVICE_PRECONDITION: "namenode:9870"
+      SERVICE_PRECONDITION: "namenode:9000"
     env_file:
       - ./hadoop.env
+    depends_on:
+      - namenode
 volumes:
   namenode:
   datanode:
