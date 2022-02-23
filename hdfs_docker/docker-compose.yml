@@ -6,17 +6,15 @@ services:
     container_name: namenode
     hostname: namenode
     ports:
-      - 50070:50070
-      - 9000:9000
-      - 8088:8088
-      - 9866:9866
+      - "50070:50070"
+      - "9000:9000"
     volumes:
       - namenode:/opt/hadoop/dfs/name
       - /tmp/hadoop_tmp:/tmp
     env_file:
       - ./hadoop.env
-    links:
-      - datanode
+    networks:
+      - hadoop_bridge
 
   datanode:
     image:  hadoop-datanode:3.3.1
@@ -25,12 +23,14 @@ services:
     restart: always
     volumes:
       - datanode:/opt/hadoop/dfs/data
-    environment:
-      SERVICE_PRECONDITION: "namenode:9000"
     env_file:
       - ./hadoop.env
-    depends_on:
-      - namenode
+    networks:
+      - hadoop_bridge
+
 volumes:
   namenode:
   datanode:
+
+networks:
+  hadoop_bridge:

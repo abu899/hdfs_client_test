@@ -10,4 +10,4 @@ RUN chmod a+x /start.sh
 
 EXPOSE 50075 50010
 
-#CMD ["/start.sh"]
+CMD ["/start.sh"]
