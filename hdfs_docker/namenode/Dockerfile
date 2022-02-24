@@ -7,9 +7,12 @@ ADD hdfs-site.xml /etc/hadoop/
 RUN mkdir /opt/hadoop/dfs/name
 VOLUME /opt/hadoop/dfs/name
 
+RUN mkdir /opt/hadoop/dfs/data
+VOLUME /opt/hadoop/dfs/data
+
 ADD start.sh /start.sh
 RUN chmod a+x /start.sh
 
-EXPOSE 50070 9000
+EXPOSE 50070 9000 9866 8088 50075 50010
 
-CMD ["/start.sh", "/opt/hadoop/dfs/name"]
+# CMD ["/start.sh", "/opt/hadoop/dfs/name"]
