@@ -4,7 +4,9 @@ import org.apache.hadoop.fs.*;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -37,15 +39,8 @@ public class HdfsClientConnectorTest {
     }
 
     @Test
-    void writeAndReadTest() {
+    void readSimpleTextTest() {
         Configuration configure = new Configuration();
-
-//        System.setProperty("HADOOP_USER_NAME", "root");
-//        configure.set("HADOOP_USER_NAME", "root");
-//        configure.set("HADOOP_NAMENODE_USER", "root");
-//        configure.set("HADOOP_DATANODE_USER", "root");
-
-        configure.set("HADOOP_HOE", "/opt/hadoop");
 
         final String path = "/test_file/hello.txt";
         Path writePathInHDFS = new Path(path);
@@ -53,32 +48,16 @@ public class HdfsClientConnectorTest {
         try {
             hdfs = FileSystem.get(URI.create(url), configure);
 
-            //write
             final String testString = "test hello\n";
-//            FSDataOutputStream outStream = hdfs.create(writePathInHDFS);
-//            outStream.writeUTF(testString);
-//            outStream.close();
 
-            //read
-//            int fileSize = 0;
-            FileStatus fileStatus = hdfs.getFileStatus(writePathInHDFS);
             FSDataInputStream inputStream = hdfs.open(writePathInHDFS);
-//            String readString = inputStream.readUTF();
-            int data = 0;
-            StringBuilder readString = new StringBuilder();
-            while((data = inputStream.read()) != -1){
-                readString.append((char) data);
-            }
 
-            ByteBuffer byteBuffer = ByteBuffer.allocate((int) fileStatus.getLen());
-            inputStream.readFully(0, byteBuffer);
-//            byte[] expected = new byte[locations.length];
-//            inputStream.readFully(0, expected);
-//            String readString = expected.toString();
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+            String readString = br.readLine();
+
             inputStream.close();
 
-            String byteBufferStr = StandardCharsets.UTF_8.decode(byteBuffer).toString();
-            assertThat(readString.toString()).isEqualTo(testString);
+            assertThat(readString).isEqualTo(testString);
             System.out.println("readString = " + readString);
         } catch (IOException e) {
             e.printStackTrace();
@@ -91,5 +70,41 @@ public class HdfsClientConnectorTest {
             e.printStackTrace();
         }
 
+    }
+
+    @Test
+    void readWriteWithJavaTest(){
+        Configuration configure = new Configuration();
+
+        final String path = "/test_file/hello_2.txt";
+        Path writePathInHDFS = new Path(path);
+        FileSystem hdfs = null;
+        try {
+            hdfs = FileSystem.get(URI.create(url), configure);
+
+            //write
+            final String testString = "test hello java";
+            FSDataOutputStream outStream = hdfs.create(writePathInHDFS);
+            outStream.writeUTF(testString);
+            outStream.close();
+
+            //read
+            FSDataInputStream inputStream = hdfs.open(writePathInHDFS);
+            String readString = inputStream.readUTF();
+
+            inputStream.close();
+
+            assertThat(readString).isEqualTo(testString);
+            System.out.println("readString = " + readString);
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("fail write and read");
+        }
+
+        try {
+            hdfs.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
