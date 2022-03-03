@@ -126,3 +126,19 @@ at org.apache.hadoop.net.NetUtils.connect(NetUtils.java:589)
       - datanode의 ipc port가 제대로 열려있는지 확인
       - hdfs-site.xml에서 configuration 변경
         - `dfs.datanode.use.datanode.hostname`, `dfs.client.use.datanode.hostname`, 기타 등등..
+        
+### Safe mode
+
+간혹 코드로 접근 시, safe mode에 따라 write 작업이 동작하지 않는 경우 발생한다. 인터넷에 따르면 세가지 이유가 있는데 다음과 같다.
+1. Namenode 시작 시
+   - 블록 복제수가 일정 수준을 만족할 때 safe mode가 해제 되는데, 만약 블록 리포트를 받는데 시간이 걸리면 safe mode에 머문다고 한다
+2. Namenode 디스크 공간 부족
+3. 관리자가 safe mode를 on 시킬 때
+
+ps. Namenode를 동작시키고 정상적으로 write, read를 한 후, 일정 시간이 지난 후에 write가 안되는 문제가 발생했다.
+1,2,3에 해당하는 문제를 살펴보았으나 2번의 문제로 유추되지만 해제 후 write를 해보면 정상적으로 write이 되는걸로 봐선, 추가적인 원인이 있을 수 있다.
+
+- 확인 방법
+  - `hdfs dfsadmin -safemode get`
+- 해제 방법
+  - `hdfs dfsadmin -safemode leave`
